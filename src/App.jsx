@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css'
 import Header from './components/Header'
 import ChatMessage from './components/ChatMessage';
+import {formatTime} from "../utils/chatUtils"
 
 function App() {
 
@@ -32,7 +33,7 @@ function App() {
       <Header setDarkMode={setDarkMode} darkMode={darkMode} />
       <div className='flex-1 overflow-y-auto p-4 md:p-6'>
         <div className='max-w-5xl mx-auto space-y-4'>
-          <ChatMessage messages={messages} />
+          <ChatMessage messages={messages} formatTime={formatTime} />
         </div>
       </div>
     </div>
