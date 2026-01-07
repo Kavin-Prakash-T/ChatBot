@@ -5,6 +5,8 @@ import ChatMessage from './components/ChatMessage';
 import { formatTime } from "../utils/chatUtils"
 import LoadingIndicator from './components/Loadingindicator';
 import ChatInput from './components/ChatInput';
+import { fetchGeminiResponse } from './services/geminiApiService';
+import { toast } from 'react-toastify';
 
 function App() {
 
@@ -30,7 +32,12 @@ function App() {
     }
   }, [darkMode]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
+    if (!input) {
+      toast.error("Please enter a message before sending.")
+      return;
+    }
+    setIsLoading(true)
     const userMessage = {
       id: Date.now().toString(),
       text: input,
@@ -38,8 +45,15 @@ function App() {
       timestamp: new Date()
     }
     setMessages((prev) => [...prev, userMessage])
+    const botMessage = {
+      id: (Date.now() + 1).toString(),
+      text: await fetchGeminiResponse(input),
+      sender: "bot",
+      timestamp: new Date()
+    }
+    setMessages((prev) => [...prev, botMessage])
+    setIsLoading(false)
     setInput("")
-    setIsLoading(true)
   }
 
 
@@ -50,8 +64,8 @@ function App() {
         <div className='max-w-5xl mx-auto space-y-4'>
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} formatTime={formatTime} />
-            ))}
-            { isLoading && <LoadingIndicator /> }
+          ))}
+          {isLoading && <LoadingIndicator />}
         </div>
       </div>
       <ChatInput input={input} setInput={setInput} isLoading={isLoading} handleSendMessage={handleSendMessage} />
