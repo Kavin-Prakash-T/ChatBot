@@ -4,11 +4,13 @@ import Header from './components/Header'
 import ChatMessage from './components/ChatMessage';
 import { formatTime } from "../utils/chatUtils"
 import LoadingIndicator from './components/Loadingindicator';
+import ChatInput from './components/ChatInput';
 
 function App() {
 
   const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true' || false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [input,setInput]=useState("")
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -28,6 +30,17 @@ function App() {
     }
   }, [darkMode]);
 
+  const handleSendMessage=()=>{
+    const userMessage={
+      id:Date.now().toString(),
+      text:input,
+      sender:"user",
+      timestamp:new Date()
+    }
+    setMessages((prev)=>[...prev,userMessage])
+    setInput("")
+    setIsLoading(true)
+  }
 
 
   return (
@@ -39,6 +52,7 @@ function App() {
           {isLoading && <LoadingIndicator />}
         </div>
       </div>
+      <ChatInput input={input} setInput={setInput} isLoading={isLoading} handleSendMessage={handleSendMessage} />
     </div>
   )
 }
