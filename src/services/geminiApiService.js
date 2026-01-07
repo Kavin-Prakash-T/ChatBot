@@ -18,16 +18,26 @@ export const fetchGeminiResponse = async (prompt) => {
                 ]
             })
         })
+        if (response.status === 429) {
+            const data = await response.json();
+            const retryDelay =
+                data?.error?.details?.find(d => d["@type"]?.includes("RetryInfo"))
+                    ?.retryDelay || "a few seconds";
+
+            return {
+                error: "RATE_LIMIT",
+                retryDelay,
+            };
+        }
+
         if (!response.ok) {
             const errorText = await response.text()
-            console.log("Error response from GEMINI API: ", errorText)
             throw new Error(`Gemini API error: ${response.status} ${response.statusText}`)
         }
         const data = await response.json()
         return data.candidates[0].content.parts[0].text
     }
     catch (error) {
-        console.error("Error fetching Gemini response:", error)
         throw error
     }
 }

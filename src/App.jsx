@@ -13,7 +13,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true' || false);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("")
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState(localStorage.getItem("messages") ? JSON.parse(localStorage.getItem("messages")) : [
     {
       id: 1,
       text: "Hello, how can I help you?",
@@ -33,7 +33,7 @@ function App() {
   }, [darkMode]);
 
   const handleSendMessage = async () => {
-    if (!input) {
+    if (!input.trim()) {
       toast.error("Please enter a message before sending.")
       return;
     }
@@ -44,14 +44,40 @@ function App() {
       sender: "user",
       timestamp: new Date()
     }
-    setMessages((prev) => [...prev, userMessage])
+    setMessages(prev => {
+      const updated = [...prev, userMessage];
+      localStorage.setItem("messages", JSON.stringify(updated));
+      return updated;
+    });
+
+    const result = await fetchGeminiResponse(input);
+
+    if (result?.error === "RATE_LIMIT") {
+      toast.error(`Daily Limit Reached`);
+      setIsLoading(false);
+      setInput("");
+      return;
+    }
+
+    if (result?.error) {
+      toast.error(" Failed to get Gemini response.");
+      setIsLoading(false);
+      setInput("");
+      return;
+    }
+
     const botMessage = {
       id: (Date.now() + 1).toString(),
-      text: await fetchGeminiResponse(input),
+      text: result.text,
       sender: "bot",
       timestamp: new Date()
     }
-    setMessages((prev) => [...prev, botMessage])
+    setMessages(prev => {
+      const updated = [...prev, botMessage];
+      localStorage.setItem("messages", JSON.stringify(updated));
+      return updated;
+    });
+
     setIsLoading(false)
     setInput("")
   }
