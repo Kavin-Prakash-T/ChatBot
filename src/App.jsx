@@ -3,7 +3,7 @@ import './App.css'
 import Header from './components/Header'
 import ChatMessage from './components/ChatMessage';
 import { formatTime } from "../utils/chatUtils"
-import LoadingIndicator from './components/Loadingindicator';
+import LoadingIndicator from './components/LoadingIndicator';
 import ChatInput from './components/ChatInput';
 import { fetchGeminiResponse } from './services/geminiApiService';
 import { toast } from 'react-toastify';
